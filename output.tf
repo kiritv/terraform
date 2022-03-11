@@ -9,6 +9,6 @@ output "main-vpc-id" {
 }
 
 output "main-aws-internet-gatewat" {
- description = "IGW"
- value       = aws_internet_gateway.main-igw.id
+  description = "IGW"
+  value       = aws_internet_gateway.main-igw.id
 }
