@@ -15,7 +15,7 @@ terraform validate
 terraform plan
 terraform apply --auto-apply
 terraform destroy --auto-apply
-```sh
+```
 
 Validate access using ssh
 ```sh
@@ -26,4 +26,4 @@ once logged in to public ec2 instance, login to private ec2
 ssh <private ec2 instance private ip>
 aws s3 ls
 aws s3 ls s3://<s3 bucket name> # to list the content of the bucket
-```sh
+```
