@@ -12,3 +12,6 @@ variable "private_subnets" {
 variable "bucket-name" {
   default = "main-bucket-for-profile-kirit"
 }
+variable "install-in-number-of-availability-zone" {
+  type = number
+}

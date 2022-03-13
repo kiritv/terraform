@@ -16,7 +16,7 @@ resource "aws_vpc" "main-vpc" {
 
 # SUBNET
 resource "aws_subnet" "public-subnet" {
-  count                   = 1
+  count                   = var.install-in-number-of-availability-zone
   vpc_id                  = aws_vpc.main-vpc.id
   cidr_block              = var.public_subnets[count.index]
   availability_zone       = data.aws_availability_zones.main-azs.names[count.index]
@@ -28,7 +28,7 @@ resource "aws_subnet" "public-subnet" {
 }
 
 resource "aws_subnet" "private-subnet" {
-  count             = 1
+  count             = var.install-in-number-of-availability-zone
   vpc_id            = aws_vpc.main-vpc.id
   cidr_block        = var.private_subnets[count.index]
   availability_zone = data.aws_availability_zones.main-azs.names[count.index]
@@ -53,7 +53,7 @@ resource "aws_route_table" "private-route-table" {
 
 # Associate subnet with Route Table
 resource "aws_route_table_association" "private-subnet-association" {
-  count          = 1
+  count          = var.install-in-number-of-availability-zone
   subnet_id      = aws_subnet.private-subnet.*.id[count.index]
   route_table_id = aws_route_table.private-route-table.id
   depends_on     = [aws_route_table.private-route-table, aws_subnet.private-subnet]
@@ -73,7 +73,7 @@ resource "aws_default_route_table" "public-route-table" {
 }
 # Associate subnet with Route Table
 resource "aws_route_table_association" "public-subnet-association" {
-  count          = 1
+  count          = var.install-in-number-of-availability-zone
   subnet_id      = aws_subnet.public-subnet.*.id[count.index]
   route_table_id = aws_default_route_table.public-route-table.id
   depends_on     = [aws_default_route_table.public-route-table, aws_subnet.public-subnet]
@@ -90,13 +90,13 @@ resource "aws_internet_gateway" "main-igw" {
 
 # EIP
 resource "aws_eip" "nate-eip" {
-  count = 1
+  count = var.install-in-number-of-availability-zone
   vpc   = true
 }
 
 # NAT Gateway
 resource "aws_nat_gateway" "nat-gw" {
-  count             = 1
+  count             = var.install-in-number-of-availability-zone
   allocation_id     = aws_eip.nate-eip.*.id[count.index]
   subnet_id         = aws_subnet.public-subnet.*.id[count.index]
   connectivity_type = "public"
