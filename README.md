@@ -7,6 +7,11 @@
 # How to
 Terraform lifecycle 
 
+
+```sh
+Make sure you update provider.tf profile to valid AWS CLI configured profile
+```
+
 Make sure following varialbes are set correctly
 ```sh
 install-in-number-of-availability-zone
@@ -39,3 +44,6 @@ ssh <private ec2 instance private ip>
 aws s3 ls
 aws s3 ls s3://<s3 bucket name> # to list the content of the bucket
 ```
+
+# install-in-number-of-availability-zone > 0 and install-s3 = true
+![](images/vpc.png)
