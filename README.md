@@ -21,10 +21,9 @@ install-s3
     set this to true to setup s3, else false
 
 install-asg-alb
-    set thi to true to setup LT, ASG, TG, ELB, and Listner.
+    set this to true to setup Launch Template, Auto Scalling Group, Target Group, Application Load Balancer, and Listner.
 ```
 
-Make sure to update provider.tf for profile
 ```sh
 terraform init
 terraform fmt
