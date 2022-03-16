@@ -7,6 +7,18 @@
 # How to
 Terraform lifecycle 
 
+Make sure following varialbes are set correctly
+```sh
+install-in-number-of-availability-zone
+    set this varialbe to number of AZs you wuold like to have your public and private subnet.
+
+install-s3
+    set this to true to setup s3, else false
+
+install-asg-alb
+    set thi to true to setup LT, ASG, TG, ELB, and Listner.
+```
+
 Make sure to update provider.tf for profile
 ```sh
 terraform init

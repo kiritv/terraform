@@ -12,6 +12,16 @@ variable "private_subnets" {
 variable "bucket-name" {
   default = "main-bucket-for-profile-kirit"
 }
+
 variable "install-in-number-of-availability-zone" {
-  type = number
+  type    = number
+  default = 1
+}
+variable "install-s3" {
+  type    = bool
+  default = true
+}
+variable "install-asg-alb" {
+  type    = bool
+  default = false
 }

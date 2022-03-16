@@ -4,6 +4,7 @@ locals {
 
 # VPC
 resource "aws_vpc" "main-vpc" {
+  count                = var.install-in-number-of-availability-zone > 0 ? 1 : 0
   cidr_block           = var.vpc_cidr
   instance_tenancy     = "default" // no dedicated hardware
   enable_dns_hostnames = true
@@ -17,7 +18,7 @@ resource "aws_vpc" "main-vpc" {
 # SUBNET
 resource "aws_subnet" "public-subnet" {
   count                   = var.install-in-number-of-availability-zone
-  vpc_id                  = aws_vpc.main-vpc.id
+  vpc_id                  = aws_vpc.main-vpc.*.id[0]
   cidr_block              = var.public_subnets[count.index]
   availability_zone       = data.aws_availability_zones.main-azs.names[count.index]
   map_public_ip_on_launch = true
@@ -29,7 +30,7 @@ resource "aws_subnet" "public-subnet" {
 
 resource "aws_subnet" "private-subnet" {
   count             = var.install-in-number-of-availability-zone
-  vpc_id            = aws_vpc.main-vpc.id
+  vpc_id            = aws_vpc.main-vpc.*.id[0]
   cidr_block        = var.private_subnets[count.index]
   availability_zone = data.aws_availability_zones.main-azs.names[count.index]
 
@@ -40,10 +41,11 @@ resource "aws_subnet" "private-subnet" {
 
 # ROUTE-TABLE
 resource "aws_route_table" "private-route-table" {
-  vpc_id = aws_vpc.main-vpc.id
+  count  = var.install-s3 ? 1 : 0
+  vpc_id = aws_vpc.main-vpc.*.id[0]
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.nat-gw[0].id
+    gateway_id = aws_nat_gateway.nate-gateway[0].id
   }
 
   tags = {
@@ -53,18 +55,19 @@ resource "aws_route_table" "private-route-table" {
 
 # Associate subnet with Route Table
 resource "aws_route_table_association" "private-subnet-association" {
-  count          = var.install-in-number-of-availability-zone
+  count          = var.install-s3 ? var.install-in-number-of-availability-zone : 0
   subnet_id      = aws_subnet.private-subnet.*.id[count.index]
-  route_table_id = aws_route_table.private-route-table.id
+  route_table_id = aws_route_table.private-route-table.*.id[0]
   depends_on     = [aws_route_table.private-route-table, aws_subnet.private-subnet]
 }
 
 # Private Route Table Assiciation
 resource "aws_default_route_table" "public-route-table" {
-  default_route_table_id = aws_vpc.main-vpc.default_route_table_id
+  count                  = var.install-in-number-of-availability-zone > 0 ? 1 : 0
+  default_route_table_id = aws_vpc.main-vpc.*.default_route_table_id[0]
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main-igw.id
+    gateway_id = aws_internet_gateway.main-internet-gateway.*.id[0]
   }
 
   tags = {
@@ -75,13 +78,14 @@ resource "aws_default_route_table" "public-route-table" {
 resource "aws_route_table_association" "public-subnet-association" {
   count          = var.install-in-number-of-availability-zone
   subnet_id      = aws_subnet.public-subnet.*.id[count.index]
-  route_table_id = aws_default_route_table.public-route-table.id
+  route_table_id = aws_default_route_table.public-route-table.*.id[0]
   depends_on     = [aws_default_route_table.public-route-table, aws_subnet.public-subnet]
 }
 
 # IGW
-resource "aws_internet_gateway" "main-igw" {
-  vpc_id = aws_vpc.main-vpc.id
+resource "aws_internet_gateway" "main-internet-gateway" {
+  count  = var.install-in-number-of-availability-zone > 0 ? 1 : 0
+  vpc_id = aws_vpc.main-vpc.*.id[0]
 
   tags = {
     Name = "${local.environment-name}-internet-gateway"
@@ -89,15 +93,15 @@ resource "aws_internet_gateway" "main-igw" {
 }
 
 # EIP
-resource "aws_eip" "nate-eip" {
+resource "aws_eip" "nate-elastic-ip" {
   count = var.install-in-number-of-availability-zone
   vpc   = true
 }
 
 # NAT Gateway
-resource "aws_nat_gateway" "nat-gw" {
+resource "aws_nat_gateway" "nate-gateway" {
   count             = var.install-in-number-of-availability-zone
-  allocation_id     = aws_eip.nate-eip.*.id[count.index]
+  allocation_id     = aws_eip.nate-elastic-ip.*.id[count.index]
   subnet_id         = aws_subnet.public-subnet.*.id[count.index]
   connectivity_type = "public"
 
@@ -108,7 +112,8 @@ resource "aws_nat_gateway" "nat-gw" {
 
 # SECURITY-GROUP-public
 resource "aws_security_group" "public-security-group" {
-  vpc_id = aws_vpc.main-vpc.id
+  count  = var.install-in-number-of-availability-zone > 0 ? 1 : 0
+  vpc_id = aws_vpc.main-vpc.*.id[0]
   name   = "${local.environment-name}-public-security-group"
 
   # ingress {
@@ -153,10 +158,11 @@ resource "aws_security_group" "public-security-group" {
 
 # SECURITY-GROUP-private
 resource "aws_security_group" "private-security-group" {
-  vpc_id = aws_vpc.main-vpc.id
+  count  = var.install-in-number-of-availability-zone > 0 ? 1 : 0
+  vpc_id = aws_vpc.main-vpc.*.id[0]
   name   = "${local.environment-name}-private-security-group"
   ingress {
-    security_groups = [aws_security_group.public-security-group.id]
+    security_groups = [aws_security_group.public-security-group.*.id[0]]
     from_port       = 0
     to_port         = 0
     protocol        = "-1"

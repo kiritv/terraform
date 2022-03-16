@@ -5,7 +5,7 @@ resource "aws_instance" "main-public-instance" {
   instance_type          = "t2.micro"
   availability_zone      = data.aws_availability_zones.main-azs.names[count.index]
   subnet_id              = aws_subnet.public-subnet.*.id[count.index]
-  vpc_security_group_ids = [aws_security_group.public-security-group.id]
+  vpc_security_group_ids = [aws_security_group.public-security-group.*.id[0]]
   key_name               = "main-key"
   user_data              = filebase64("${path.module}/user-data.sh")
 
@@ -20,9 +20,9 @@ resource "aws_instance" "main-private-instance" {
   instance_type          = "t2.micro"
   availability_zone      = data.aws_availability_zones.main-azs.names[count.index]
   subnet_id              = aws_subnet.private-subnet.*.id[count.index]
-  vpc_security_group_ids = [aws_security_group.private-security-group.id]
+  vpc_security_group_ids = [aws_security_group.private-security-group.*.id[0]]
   key_name               = "main-key"
-  iam_instance_profile   = aws_iam_instance_profile.ec2-s3-profile.name
+  iam_instance_profile   = aws_iam_instance_profile.ec2-s3-profile.*.name[0]
   #user_data              = filebase64("${path.module}/user-data.sh")
 
   tags = {
