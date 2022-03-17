@@ -44,5 +44,5 @@ aws s3 ls
 aws s3 ls s3://<s3 bucket name> # to list the content of the bucket
 ```
 
-# install-in-number-of-availability-zone > 0 and install-s3 = true
+# Architecture
 ![](images/vpc.jpg)
