@@ -44,5 +44,5 @@ aws s3 ls
 aws s3 ls s3://<s3 bucket name> # to list the content of the bucket
 ```
 
-# Architecture
+# Diagram
 ![](images/vpc.jpg)
