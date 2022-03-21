@@ -67,7 +67,7 @@ resource "aws_alb_target_group" "main-target-group" {
 }
 resource "aws_alb_target_group_attachment" "main-ec2-alw-tg-attachment" {
   count            = var.install-asg-alb ? var.install-in-number-of-availability-zone : 0
-  target_group_arn = aws_alb_target_group.main-target-group.*.arn[count.index]
+  target_group_arn = aws_alb_target_group.main-target-group.*.arn[0]
   target_id        = aws_instance.main-public-instance.*.id[count.index]
   port             = 80
 }

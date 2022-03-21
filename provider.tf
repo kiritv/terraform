@@ -1,4 +1,4 @@
 provider "aws" {
-  profile = "kirit"
+  profile = "tigr"
   region  = "us-east-1"
 }

@@ -1,5 +1,5 @@
 locals {
-  environment-name = "my"
+  environment-name = "dev"
 }
 
 # VPC
